@@ -14,7 +14,7 @@ import java.util.HashMap;
 
 public class SAP {
 
-    private Digraph G;
+    private static Digraph G;
     private HashMap<Integer, HashMap<Integer, Integer>> commonAncestors;
     private HashMap<Integer, HashMap<Integer, Integer>> shortestPathLengths;
 
