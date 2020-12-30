@@ -14,7 +14,7 @@ import java.util.HashMap;
 
 public class SAP {
 
-    private static Digraph G;
+    private final Digraph G;
     private HashMap<Integer, HashMap<Integer, Integer>> commonAncestors;
     private HashMap<Integer, HashMap<Integer, Integer>> shortestPathLengths;
 
@@ -164,28 +164,35 @@ public class SAP {
 
     // length of shortest ancestral path between any vertex in v and any vertex in w; -1 if no such path
     public int length(Iterable<Integer> v, Iterable<Integer> w) {
-        for (Integer newv : v) {
-            for (Integer neww : w) {
-                int shortPathLength = length(newv, neww);
-                if (shortPathLength != -1) {
-                    return shortPathLength;
+        int minSeen = Integer.MAX_VALUE;
+        for (int newv : v) {
+            for (int neww : w) {
+                int curLength = length(newv, neww);
+                if (curLength < minSeen && curLength != -1) {
+                    minSeen = curLength;
                 }
             }
+        }
+        if (minSeen < Integer.MAX_VALUE) {
+            return minSeen;
         }
         return -1;
     }
 
     // a common ancestor that participates in shortest ancestral path; -1 if no such path
     public int ancestor(Iterable<Integer> v, Iterable<Integer> w) {
-        for (Integer newv : v) {
-            for (Integer neww : w) {
-                int minAncestor = ancestor(newv, neww);
-                if (minAncestor != -1) {
-                    return minAncestor;
+        int minSeen = Integer.MAX_VALUE;
+        int minAncestor = -1;
+        for (int newv : v) {
+            for (int neww : w) {
+                int curAncestor = ancestor(newv, neww);
+                int curPathLength = this.shortestPathLengths.get(newv).get(neww);
+                if (curPathLength < minSeen && curPathLength != -1) {
+                    minAncestor = curAncestor;
                 }
             }
         }
-        return -1;
+        return minAncestor;
 
     }
 
