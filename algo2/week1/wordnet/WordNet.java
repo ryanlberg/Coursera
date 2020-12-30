@@ -13,10 +13,10 @@ import java.util.HashMap;
 
 public class WordNet {
 
-    private Digraph wordnet;
-    private HashMap<String, ArrayList<Integer>> nounToID;
-    private HashMap<Integer, ArrayList<String>> idToWords;
-    private SAP pathset;
+    private final Digraph wordnet;
+    private final HashMap<String, ArrayList<Integer>> nounToID;
+    private final HashMap<Integer, ArrayList<String>> idToWords;
+    private final SAP pathset;
 
 
     public WordNet(String synsets, String hypernyms) {

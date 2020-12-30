@@ -15,8 +15,8 @@ import java.util.HashMap;
 public class SAP {
 
     private final Digraph G;
-    private HashMap<Integer, HashMap<Integer, Integer>> commonAncestors;
-    private HashMap<Integer, HashMap<Integer, Integer>> shortestPathLengths;
+    private final HashMap<Integer, HashMap<Integer, Integer>> commonAncestors;
+    private final HashMap<Integer, HashMap<Integer, Integer>> shortestPathLengths;
 
     // constructor takes a digraph (not necessarily a DAG)
     public SAP(Digraph G) {
@@ -36,7 +36,6 @@ public class SAP {
         Queue<int[]> wqueue = new Queue<>();
         vqueue.enqueue(new int[] { v, 0 });
         wqueue.enqueue(new int[] { w, 0 });
-        boolean set = false;
 
         while (!vqueue.isEmpty() && !wqueue.isEmpty()) {
 
@@ -106,8 +105,6 @@ public class SAP {
         }
 
         setAncestorsAndPaths(v, w, -1, -1);
-        return;
-
     }
 
     private void setAncestorsAndPaths(int v, int w, int ancester, int length) {
@@ -134,6 +131,9 @@ public class SAP {
 
     // length of shortest ancestral path between v and w; -1 if no such path
     public int length(int v, int w) {
+        if (v < 0 || w < 0) {
+            throw new IllegalArgumentException();
+        }
         if (v == w) {
             return 0;
         }
@@ -149,6 +149,9 @@ public class SAP {
 
     // a common ancestor of v and w that participates in a shortest ancestral path; -1 if no such path
     public int ancestor(int v, int w) {
+        if (v < 0 || w < 0) {
+            throw new IllegalArgumentException();
+        }
         if (v == w) {
             return v;
         }
@@ -164,9 +167,18 @@ public class SAP {
 
     // length of shortest ancestral path between any vertex in v and any vertex in w; -1 if no such path
     public int length(Iterable<Integer> v, Iterable<Integer> w) {
+        if (v == null || w == null) {
+            throw new IllegalArgumentException();
+        }
         int minSeen = Integer.MAX_VALUE;
-        for (int newv : v) {
-            for (int neww : w) {
+        for (Integer newv : v) {
+            if (newv == null) {
+                throw new IllegalArgumentException();
+            }
+            for (Integer neww : w) {
+                if (neww == null) {
+                    throw new IllegalArgumentException();
+                }
                 int curLength = length(newv, neww);
                 if (curLength < minSeen && curLength != -1) {
                     minSeen = curLength;
@@ -181,10 +193,19 @@ public class SAP {
 
     // a common ancestor that participates in shortest ancestral path; -1 if no such path
     public int ancestor(Iterable<Integer> v, Iterable<Integer> w) {
+        if (v == null || w == null) {
+            throw new IllegalArgumentException();
+        }
         int minSeen = Integer.MAX_VALUE;
         int minAncestor = -1;
-        for (int newv : v) {
-            for (int neww : w) {
+        for (Integer newv : v) {
+            if (newv == null) {
+                throw new IllegalArgumentException();
+            }
+            for (Integer neww : w) {
+                if (neww == null) {
+                    throw new IllegalArgumentException();
+                }
                 int curAncestor = ancestor(newv, neww);
                 int curPathLength = this.shortestPathLengths.get(newv).get(neww);
                 if (curPathLength < minSeen && curPathLength != -1) {
