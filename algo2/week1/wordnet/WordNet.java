@@ -15,21 +15,42 @@ public class WordNet {
 
     private final Digraph wordnet;
     private final HashMap<String, ArrayList<Integer>> nounToID;
-    private final HashMap<Integer, ArrayList<String>> idToWords;
+    private final HashMap<Integer, NetNode> idToWords;
     private final SAP pathset;
 
+    private class NetNode {
+
+        private final String noun;
+        private final int id;
+
+        public NetNode(String noun, int id) {
+            this.noun = noun;
+            this.id = id;
+        }
+
+        public String getNoun() {
+            return this.noun;
+        }
+
+        public int getId() {
+            return this.id;
+        }
+    }
 
     public WordNet(String synsets, String hypernyms) {
         if (synsets == null || hypernyms == null) {
             throw new IllegalArgumentException();
         }
         this.nounToID = new HashMap<String, ArrayList<Integer>>();
-        this.idToWords = new HashMap<Integer, ArrayList<String>>();
+        this.idToWords = new HashMap<Integer, NetNode>();
         readSynsets(synsets);
         this.wordnet = new Digraph(idToWords.size());
         readHypernyms(hypernyms);
         this.pathset = new SAP(this.wordnet);
         int rootcounts = 0;
+
+        //TODO: Use Cycle detection for this
+
         for (int node : idToWords.keySet()) {
             if (this.wordnet.outdegree(node) == 0) {
                 rootcounts++;
@@ -38,6 +59,7 @@ public class WordNet {
         if (rootcounts > 1) {
             throw new IllegalArgumentException();
         }
+        // END TODO
     }
 
     private void readSynsets(String synset) {
@@ -46,6 +68,7 @@ public class WordNet {
             String currentLine = in.readLine();
             String[] separated = currentLine.split(",");
             int id = Integer.parseInt(separated[0]);
+            NetNode curnode = new NetNode(separated[1], id);
             String[] words = separated[1].split(" ");
             for (String word : words) {
                 if (!nounToID.containsKey(word)) {
@@ -53,9 +76,8 @@ public class WordNet {
                 }
                 nounToID.get(word).add(id);
                 if (!idToWords.containsKey(id)) {
-                    idToWords.put(id, new ArrayList<String>());
+                    idToWords.put(id, curnode);
                 }
-                idToWords.get(id).add(word);
             }
 
         }
@@ -108,7 +130,7 @@ public class WordNet {
         int id = this.pathset
                 .ancestor(this.nounToID.get(nounA),
                           this.nounToID.get(nounB));
-        return this.idToWords.get(id).get(0);
+        return this.idToWords.get(id).getNoun();
     }
 
     public static void main(String[] args) {
@@ -117,6 +139,6 @@ public class WordNet {
         StdOut.print(test.distance("Black_Plague", "black_marlin") + "\n");
         StdOut.print(test.distance("American_water_spaniel", "histology") + "\n");
         StdOut.print(test.distance("Brown_Swiss", "barrel_roll") + "\n");
-        StdOut.print(test.sap("individual", "edible_fruit") + "\n");
+        StdOut.print(test.sap("lactose", "simple_sugar") + "\n");
     }
 }

@@ -36,7 +36,8 @@ public class SAP {
         Queue<int[]> wqueue = new Queue<>();
         vqueue.enqueue(new int[] { v, 0 });
         wqueue.enqueue(new int[] { w, 0 });
-
+        int minSeen = -1;
+        int spot = -1;
         while (!vqueue.isEmpty() && !wqueue.isEmpty()) {
 
             int[] curv = vqueue.dequeue();
@@ -46,13 +47,31 @@ public class SAP {
             wseen.put(curw[0], curw[1]);
 
             if (vseen.containsKey(curw[0])) {
-                setAncestorsAndPaths(v, w, curw[0], curw[1] + vseen.get(curw[0]));
-                return;
+                int value = curw[1] + vseen.get(curw[0]);
+                if (minSeen != -1) {
+                    if (value < minSeen) {
+                        minSeen = value;
+                        spot = curw[0];
+                    }
+                }
+                else {
+                    minSeen = value;
+                    spot = curw[0];
+                }
             }
 
             if (wseen.containsKey(curv[0])) {
-                setAncestorsAndPaths(v, w, curv[0], curv[1] + wseen.get(curv[0]));
-                return;
+                int value = curv[1] + wseen.get(curv[0]);
+                if (minSeen != -1) {
+                    if (value < minSeen) {
+                        minSeen = value;
+                        spot = curv[0];
+                    }
+                }
+                else {
+                    minSeen = value;
+                    spot = curv[0];
+                }
             }
 
             for (Integer edge : this.G.adj(curv[0])) {
@@ -76,8 +95,17 @@ public class SAP {
             int[] curw = wqueue.dequeue();
             wseen.put(curw[0], curw[1]);
             if (vseen.containsKey(curw[0])) {
-                setAncestorsAndPaths(v, w, curw[0], curw[1] + vseen.get(curw[0]));
-                return;
+                int value = curw[1] + vseen.get(curw[0]);
+                if (minSeen != -1) {
+                    if (value < minSeen) {
+                        minSeen = value;
+                        spot = curw[0];
+                    }
+                }
+                else {
+                    minSeen = value;
+                    spot = curw[0];
+                }
             }
             for (Integer edge : this.G.adj(curw[0])) {
                 if (!wseen.containsKey(edge)) {
@@ -92,8 +120,18 @@ public class SAP {
             int[] curv = vqueue.dequeue();
             vseen.put(curv[0], curv[1]);
             if (wseen.containsKey(curv[0])) {
-                setAncestorsAndPaths(v, w, curv[0], curv[1] + wseen.get(curv[0]));
-                return;
+                int value = curv[1] + wseen.get(curv[0]);
+                if (minSeen != -1) {
+                    if (value < minSeen) {
+                        minSeen = value;
+                        spot = curv[0];
+                    }
+                }
+                else {
+                    minSeen = value;
+                    spot = curv[0];
+                }
+
             }
             for (Integer edge : this.G.adj(curv[0])) {
                 if (!vseen.containsKey(edge)) {
@@ -104,7 +142,7 @@ public class SAP {
 
         }
 
-        setAncestorsAndPaths(v, w, -1, -1);
+        setAncestorsAndPaths(v, w, spot, minSeen);
     }
 
     private void setAncestorsAndPaths(int v, int w, int ancester, int length) {
