@@ -8,16 +8,16 @@ import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.FordFulkerson;
 import edu.princeton.cs.algs4.FlowNetwork;
+import edu.princeton.cs.algs4.FlowEdge;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 
 public class BaseballElimination {
 	
-	private int teamCount;
-	private FordFulkerson g;
-	private Team[] teams;
-	private HashMap<String, Integer> stringToId;
+	private final int teamCount;
+	private final Team[] teams;
+	private final HashMap<String, Integer> stringToId;
 
     public BaseballElimination(String filename) {
     	In reader = new In(filename);
@@ -32,6 +32,7 @@ public class BaseballElimination {
     	}
     	
     }
+    
     
     private Team getTeam(In in, int id) {
     	String current = in.readLine();
@@ -90,18 +91,105 @@ public class BaseballElimination {
     }
 
     public boolean isEliminated(String team) {
-        if (team == null) {
+        if (team == null || !stringToId.containsKey(team)) {
             throw new IllegalArgumentException();
         }
-        return false;
+        FordFulkIt(team);
+        return teams[stringToId.get(team)].getIsEliminated();
 
     }
 
     public Iterable<String> certificateOfElimination(String team) {
-        if (team == null) {
+        if (team == null || !stringToId.containsKey(team)) {
             throw new IllegalArgumentException();
         }
-        return new ArrayList<String>();
+        
+        return teams[stringToId.get(team)].getEleminated();
+    }
+    
+    private void FordFulkIt(String team) {
+    	
+    	int game_v = ((this.teamCount-1)*(this.teamCount-2))/2;
+    	int nodes = this.teamCount-1 + game_v + 2;
+    	
+    	FlowNetwork current = new FlowNetwork(nodes);
+    	
+    	int teamId = this.stringToId.get(team);
+    	
+    	int[][] translate = new int[game_v][2];
+    	int[][] edgeHelper = new int[game_v][2];
+    	int[] flowedges = new int[this.teamCount-1];
+    	
+    	int flow = 0;
+    	int cur = 0;
+    	for(int i = 0; i < flowedges.length; i++) {
+    		for(int j = i+1; j < flowedges.length; j++ ) {
+    			edgeHelper[cur][0] = i;
+    			edgeHelper[cur][1] = j;
+    			cur++;
+    		}
+    	}
+    	
+    	cur = 0;
+    	for(int i = 0; i < this.teams.length; i++) {
+    		if(i != teamId) {
+    			flowedges[flow] = i;
+    			flow++;
+    			for(int j = i+1; j < this.teams.length; j++) {
+    				if(j != teamId) {
+    					translate[cur][0] = i;
+    					translate[cur][1] = j;
+    					cur++;
+    				}
+    			}
+    			
+    		}
+    	}
+    	
+    	//System.out.println("length: " + edgeHelper.length);
+    	
+    	//add edges from S to game vertices
+    	for(int i = 0;  i < edgeHelper.length; i++) {
+    		FlowEdge x = new FlowEdge(0, i+1, teams[translate[i][0]].getRemaining(teams[translate[i][1]].getId()));
+    		//System.out.println(x);
+    		current.addEdge(x);
+    	}
+    	
+    	//add edges from game vertices to team vertices
+    	for(int i = 0; i < edgeHelper.length; i++) {
+    		FlowEdge x = new FlowEdge(i+1, 1 + edgeHelper.length + edgeHelper[i][0], Integer.MAX_VALUE);
+    		FlowEdge y = new FlowEdge(i+1, 1 + edgeHelper.length + edgeHelper[i][1], Integer.MAX_VALUE);
+    		//System.out.println(x);
+    		//System.out.println(y);
+    		current.addEdge(x);
+    		current.addEdge(y);
+    	}
+    	
+    	//add edges from team vertices to T
+    	int last_edge = nodes-1;
+    	for(int i = 0; i < flowedges.length; i++) {
+    		int edge_cap = teams[teamId].getWins() + teams[teamId].getGamesLeft() - teams[flowedges[i]].getWins();
+    		if(edge_cap < 0) {
+    			edge_cap = 0;
+    		}
+    		current.addEdge(new FlowEdge(1 + edgeHelper.length + i, last_edge, edge_cap));
+    	}
+    	
+    	FordFulkerson ff = new FordFulkerson(current, 0, last_edge);
+    	ArrayList<String> becauseof = new ArrayList<String>();
+    	
+    	for(int i = 0; i < flowedges.length; i++) {
+    		int curcheck = 1 + edgeHelper.length + i;
+    		//System.out.println("check " + teams[teamId].getName() + ", " + curcheck);
+    		if(ff.inCut(curcheck)) {	
+    			teams[teamId].eliminate();
+    			becauseof.add(teams[flowedges[i]].getName());
+    		}
+    	}
+    	
+    	teams[teamId].setEliminated(becauseof);
+    	
+    	
     }
 
     public static void main(String[] args) {

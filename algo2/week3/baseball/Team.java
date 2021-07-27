@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 public class Team {
 
 	private final String name;
@@ -6,6 +7,8 @@ public class Team {
 	private int losses;
 	private int gamesLeft;
 	private int[] remaining;
+	private boolean isEliminated;
+	private ArrayList<String> eliminated;
 	
 	public Team(String name, int id, int wins, int losses, int left, int[] remaining) {
 		this.name = name;
@@ -14,10 +17,28 @@ public class Team {
 		this.losses = losses;
 		this.gamesLeft = left;
 		this.remaining = remaining;
+		this.isEliminated = false;
+		this.eliminated = new ArrayList<>();
 	}
 	
 	public int getId() {
 		return this.id;
+	}
+	
+	public void eliminate() {
+		this.isEliminated = true;
+	}
+	
+	public boolean getIsEliminated() {
+		return this.isEliminated;
+	}
+	
+	public void setEliminated(ArrayList<String> elimList) {
+		this.eliminated = elimList;
+	}
+	
+	public ArrayList<String> getEleminated() {
+		return this.eliminated;
 	}
 	
 	public String getName() {
@@ -37,6 +58,7 @@ public class Team {
 	}
 	
 	public int getRemaining(int other_id) {
+		//System.out.println("This: " + this.id + ", Other: " + other_id);
 		if(other_id < 0 || other_id >= remaining.length || other_id == this.id) {
 			throw new IllegalArgumentException();
 		}
@@ -44,7 +66,7 @@ public class Team {
 	}
 	
 	public String toString() {
-		return this.name + " Wins: " + this.wins + " Losses: " + this.losses + " left: " + this.left; 
+		return this.name + " Wins: " + this.wins + " Losses: " + this.losses + " left: " + this.gamesLeft; 
 	}
 	
 	
