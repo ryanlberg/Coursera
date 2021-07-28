@@ -58,7 +58,6 @@ public class Team {
 	}
 	
 	public int getRemaining(int other_id) {
-		//System.out.println("This: " + this.id + ", Other: " + other_id);
 		if(other_id < 0 || other_id >= remaining.length || other_id == this.id) {
 			throw new IllegalArgumentException();
 		}

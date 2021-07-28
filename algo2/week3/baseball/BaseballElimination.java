@@ -37,7 +37,7 @@ public class BaseballElimination {
     private Team getTeam(In in, int id) {
     	String current = in.readLine();
     	current = current.trim();
-    	String[] values = current.split("\s+");
+    	String[] values = current.split("\\s+");
     
     	String name = values[0].trim();
     	
@@ -103,8 +103,11 @@ public class BaseballElimination {
         if (team == null || !stringToId.containsKey(team)) {
             throw new IllegalArgumentException();
         }
-        
-        return teams[stringToId.get(team)].getEleminated();
+        ArrayList<String> ret = teams[stringToId.get(team)].getEleminated();
+        if(ret.size() > 0) {
+        	return ret;
+        } 
+        return null;
     }
     
     private void FordFulkIt(String team) {
@@ -151,7 +154,6 @@ public class BaseballElimination {
     	//add edges from S to game vertices
     	for(int i = 0;  i < edgeHelper.length; i++) {
     		FlowEdge x = new FlowEdge(0, i+1, teams[translate[i][0]].getRemaining(teams[translate[i][1]].getId()));
-    		//System.out.println(x);
     		current.addEdge(x);
     	}
     	
@@ -159,8 +161,6 @@ public class BaseballElimination {
     	for(int i = 0; i < edgeHelper.length; i++) {
     		FlowEdge x = new FlowEdge(i+1, 1 + edgeHelper.length + edgeHelper[i][0], Integer.MAX_VALUE);
     		FlowEdge y = new FlowEdge(i+1, 1 + edgeHelper.length + edgeHelper[i][1], Integer.MAX_VALUE);
-    		//System.out.println(x);
-    		//System.out.println(y);
     		current.addEdge(x);
     		current.addEdge(y);
     	}
@@ -180,7 +180,6 @@ public class BaseballElimination {
     	
     	for(int i = 0; i < flowedges.length; i++) {
     		int curcheck = 1 + edgeHelper.length + i;
-    		//System.out.println("check " + teams[teamId].getName() + ", " + curcheck);
     		if(ff.inCut(curcheck)) {	
     			teams[teamId].eliminate();
     			becauseof.add(teams[flowedges[i]].getName());
