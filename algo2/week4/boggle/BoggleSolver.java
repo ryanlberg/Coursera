@@ -14,7 +14,7 @@ public class BoggleSolver {
 		words = new TrieSET();
 		wordsInSet = new HashSet<>();
 		helper = new int[][] {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-		for(String word : dictionary) {
+		for (String word : dictionary) {
 			words.add(word);
 		}
 	}
@@ -23,8 +23,8 @@ public class BoggleSolver {
 		this.wordsInSet = new HashSet<>();
 		check = new int[board.rows()][board.cols()];
 		
-		for(int i = 0; i < board.rows(); i++) {
-			for(int j = 0; j < board.cols(); j++) {
+		for (int i = 0; i < board.rows(); i++) {
+			for (int j = 0; j < board.cols(); j++) {
 				fillWordsInSet(board, i, j, new StringBuilder());
 			}
 		}
@@ -34,7 +34,7 @@ public class BoggleSolver {
 	
 	private void fillWordsInSet(BoggleBoard board, int i, int j, StringBuilder current) {
 		char curlet = board.getLetter(i, j);
-		if(curlet == 'Q') {
+		if (curlet == 'Q') {
 			current.append('Q');
 			current.append('U');
 		} else {
@@ -42,23 +42,27 @@ public class BoggleSolver {
 		}
 		
 		String curstring = current.toString();
-		if(curstring.length() > 2 && words.contains(curstring)) {
+		if (curstring.length() > 2 && words.contains(curstring)) {
 			wordsInSet.add(curstring);
 		}
 		
 		check[i][j] = 1;
-		for(int[] next : helper) {
-			if(isValid(i+next[0], j+next[1], board)) {
-				fillWordsInSet(board, i+next[0], j+next[1], current);
+		
+		if (words.keysWithPrefix(curstring).iterator().hasNext()) {
+			for (int[] next : helper) {
+				if (isValid(i+next[0], j+next[1], board)) {
+					fillWordsInSet(board, i+next[0], j+next[1], current);
+				}
 			}
 		}
 		check[i][j] = 0;
-		if(curlet == 'Q') {
+		if (curlet == 'Q') {
 			current.deleteCharAt(current.length()-1);
 			current.deleteCharAt(current.length()-1);
 		} else {
 			current.deleteCharAt(current.length()-1);
 		}
+		
 		
 	}
 	
@@ -67,15 +71,15 @@ public class BoggleSolver {
 	}
 	
 	public int scoreOf(String word) {
-		if(words.contains(word)) {
+		if (words.contains(word)) {
 			int wordLength = word.length();
-			if(wordLength <= 4) {
+			if (wordLength <= 4) {
 				return 1;
-			} else if(wordLength == 5) {
+			} else if (wordLength == 5) {
 				return 2;
-			} else if(wordLength == 6) {
+			} else if (wordLength == 6) {
 				return 3;
-			} else if(wordLength == 7) {
+			} else if (wordLength == 7) {
 				return 5;
 			}
 			return 11;
